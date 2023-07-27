@@ -33,8 +33,8 @@ bind_interrupts!(struct Irqs {
 });
 
 static mut CORE1_STACK: Stack<4096> = Stack::new();
-static EXECUTOR0: StaticCell<Executor> = StaticCell::new();
-static EXECUTOR1: StaticCell<Executor> = StaticCell::new();
+static CORE0_EXECUTOR: StaticCell<Executor> = StaticCell::new();
+static CORE1_EXECUTOR: StaticCell<Executor> = StaticCell::new();
 static LED_CHANNEL: StaticCell<Channel<ThreadModeRawMutex, LedState, 1>> = StaticCell::new();
 
 #[cortex_m_rt::entry]
@@ -85,8 +85,8 @@ fn main() -> ! {
     );
     // spawn tasks (core1)
     spawn_core1(p.CORE1, unsafe { &mut CORE1_STACK }, move || {
-        let executor1 = EXECUTOR1.init(Executor::new());
-        executor1.run(|spawner| {
+        let core1_executor = CORE1_EXECUTOR.init(Executor::new());
+        core1_executor.run(|spawner| {
             spawner.must_spawn(nrf2401_receiver_task(
                 spi0_bus, 
                 pins::get_spi0_cs_pin!(p).degrade(), 
@@ -96,8 +96,8 @@ fn main() -> ! {
         });
     });
     // spawn tasks (core0)
-    let executor0 = EXECUTOR0.init(Executor::new());
-    executor0.run(|spawner| {
+    let core0_executor = CORE0_EXECUTOR.init(Executor::new());
+    core0_executor.run(|spawner| {
         spawner.must_spawn(led_task(
             pins::get_led_pin!(p).degrade(),
             led_channel_receiver
