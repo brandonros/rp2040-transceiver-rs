@@ -28,6 +28,8 @@ const FEATURE: Register = 0x1d;
 const FLUSH_TX: Register = 0xe1;
 const FLUSH_RX: Register = 0xe2;
 
+const PIPE0_ADDRESS: [u8; 5] = [0x01, 0x00, 0x00, 0x00, 0x00];
+
 pub fn nrf24l01_write_register<SPI>(spi: &mut SPI, register: Register, byte: u8) -> (u8, u8)
 where
     SPI: SpiDevice,
@@ -150,27 +152,21 @@ where
         Role::Transmitter => {
             // write 5 byte TX_ADDR
             let mut response_buffer = [0u8; 6];
-            let request_buffer = [
-                W_REGISTER | TX_ADDR,
-                1,
-                0,
-                0,
-                0,
-                0, // 5 byte pipe address
-            ];
+            let mut request_buffer = [0u8; 6];
+            request_buffer[0] = W_REGISTER | TX_ADDR;
+            for (i, byte) in PIPE0_ADDRESS.iter().enumerate() {
+                request_buffer[i + 1] = *byte;
+            }
             spi.transfer(&mut response_buffer, &request_buffer).unwrap();
         }
         Role::Receiver => {
             // write 5 byte RX_ADDR_P0
             let mut response_buffer = [0u8; 6];
-            let request_buffer = [
-                W_REGISTER | RX_ADDR_P0,
-                1,
-                0,
-                0,
-                0,
-                0, // 5 byte pipe address
-            ];
+            let mut request_buffer = [0u8; 6];
+            request_buffer[0] = W_REGISTER | RX_ADDR_P0;
+            for (i, byte) in PIPE0_ADDRESS.iter().enumerate() {
+                request_buffer[i + 1] = *byte;
+            }
             spi.transfer(&mut response_buffer, &request_buffer).unwrap();
         }
     }
