@@ -24,3 +24,5 @@ embedded-hal = { version = "=1.0.0-alpha.11" }
 static_cell = { version = "1.1", features = ["nightly"] }
 # bitfield
 bitfield = "0.14.0"
+# nrf24
+nrf24 = { git = "https://github.com/brandonros/nrf24-rs", rev = "06aa331", default-features = false, features = ["no_std"] }

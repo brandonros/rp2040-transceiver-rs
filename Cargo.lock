@@ -816,6 +816,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e4a24736216ec316047a1fc4252e27dabb04218aa4a3f37c6e7ddbf1f9782b54"
 
 [[package]]
+name = "nrf24"
+version = "0.1.0"
+source = "git+https://github.com/brandonros/nrf24-rs?rev=06aa331#06aa331ffcb256aba43d794720dccc946c4b216d"
+dependencies = [
+ "bitfield 0.14.0",
+ "defmt",
+ "embassy-time",
+ "embedded-hal 1.0.0-alpha.11",
+]
+
+[[package]]
 name = "num-traits"
 version = "0.2.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1112,6 +1123,7 @@ dependencies = [
  "embassy-sync",
  "embassy-time",
  "embedded-hal 1.0.0-alpha.11",
+ "nrf24",
  "panic-probe",
  "static_cell",
 ]

@@ -2,9 +2,6 @@
 #![no_main]
 #![feature(type_alias_impl_trait)]
 
-mod bitfields;
-mod nrf2401;
-mod role;
 mod pins;
 mod led_state;
 
@@ -23,7 +20,6 @@ use embassy_rp::{
 use embassy_sync::{blocking_mutex::{raw::{NoopRawMutex, ThreadModeRawMutex}, Mutex}, channel::{Receiver, Channel, Sender}};
 
 use panic_probe as _;
-use role::Role;
 use static_cell::StaticCell;
 
 use crate::led_state::LedState;
@@ -140,9 +136,9 @@ async fn nrf2401_receiver_task(
     // NRF2401
     let mut ce_output = gpio::Output::new(ce_pin, Level::Low);
     ce_output.set_low();
-    let role = Role::Receiver;
-    nrf2401::nrf2401_setup(&mut spi0_device, &mut ce_output, &role).await;
-    nrf2401::nrf2401_receiver_loop(&mut spi0_device, led_sender).await;
+    let role = nrf24::Nrf24Role::Receiver;
+    nrf24::nrf24_setup(&mut spi0_device, &mut ce_output, &role).await;
+    nrf24::nrf24_receiver_loop(&mut spi0_device).await; // TODO: led_sender
 }
 
 #[embassy_executor::task]
@@ -160,7 +156,7 @@ async fn nrf2401_transmitter_task(
     // NRF2401
     let mut ce_output = gpio::Output::new(ce_pin, Level::Low);
     ce_output.set_low();
-    let role = Role::Transmitter;
-    nrf2401::nrf2401_setup(&mut spi1_device, &mut ce_output, &role).await;
-    nrf2401::nrf2401_transmitter_loop(&mut spi1_device, &mut ce_output, led_sender).await;
+    let role = nrf24::Nrf24Role::Transmitter;
+    nrf24::nrf24_setup(&mut spi1_device, &mut ce_output, &role).await;
+    nrf24::nrf24_transmitter_loop(&mut spi1_device, &mut ce_output).await; // TODO: led_sender
 }
